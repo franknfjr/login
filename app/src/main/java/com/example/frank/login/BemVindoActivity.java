@@ -14,5 +14,16 @@ public class BemVindoActivity extends AppCompatActivity {
         String nome = argBundle.getString("nome");
         TextView textView = (TextView) findViewById(R.id.textView);
         textView.setText("Olá " + nome + ", seja bem-vindo");
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+      int id = item.getItemId();
+      if (id == android.R.id.home) {
+        finish();
+        return true;
+      }
+      return super.onOptionsItemSelected(item);
     }
 }
