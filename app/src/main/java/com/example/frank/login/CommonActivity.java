@@ -1,7 +1,5 @@
 package com.example.frank.login;
 
-import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -17,7 +15,8 @@ abstract public class CommonActivity extends AppCompatActivity {
     protected EditText password;
     protected ProgressBar progressBar;
 
-    protected void showSnackbar(String message ){
+
+    protected void showSnackbar( String message ){
         Snackbar.make(progressBar,
                 message,
                 Snackbar.LENGTH_LONG)

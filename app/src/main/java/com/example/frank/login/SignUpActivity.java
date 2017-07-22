@@ -1,6 +1,7 @@
 package com.example.frank.login;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -8,21 +9,24 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.example.frank.login.domain.User;
-import com.example.frank.login.domain.util.LibraryClass;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-
-import java.util.Map;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 
-/**
- * Created by Frank on 21/07/2017.
- */
 
-public class SignUpActivity extends CommonActivity {
 
-    private Firebase firebase;
+
+public class SignUpActivity extends CommonActivity implements DatabaseReference.CompletionListener {
+
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
     private User user;
     private AutoCompleteTextView name;
 
@@ -33,53 +37,88 @@ public class SignUpActivity extends CommonActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        firebase = LibraryClass.getFirebase();
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
+                if (firebaseUser == null || user.getId() != null) {
+                    return;
+                }
+
+                user.setId(firebaseUser.getUid());
+                user.saveDB(SignUpActivity.this);
+            }
+        };
         initViews();
     }
 
-    protected void initViews(){
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthStateListener != null) {
+            mAuth.removeAuthStateListener(mAuthStateListener);
+        }
+    }
+
+    protected void initViews() {
         name = (AutoCompleteTextView) findViewById(R.id.name);
         email = (AutoCompleteTextView) findViewById(R.id.email);
         password = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.sign_up_progress);
     }
 
-    protected void initUser(){
+    protected void initUser() {
         user = new User();
-        user.setName( name.getText().toString() );
-        user.setEmail( email.getText().toString() );
-        user.setPassword( password.getText().toString() );
+        user.setName(name.getText().toString());
+        user.setEmail(email.getText().toString());
+        user.setPassword(password.getText().toString());
         user.generateCryptPassword();
     }
 
-    public void sendSignUpData( View view ){
+    public void sendSignUpData(View view) {
         openProgressBar();
         initUser();
         saveUser();
     }
 
-    private void saveUser(){
-        firebase.createUser(
+    private void saveUser() {
+
+
+        mAuth.createUserWithEmailAndPassword(
                 user.getEmail(),
-                user.getPassword(),
-                new Firebase.ValueResultHandler<Map<String, Object>>() {
-                    @Override
-                    public void onSuccess(Map<String, Object> stringObjectMap) {
-                        user.setId( stringObjectMap.get("uid").toString() );
-                        user.saveDB();
-                        firebase.unauth();
+                user.getPassword()
+        ).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
 
-                        showToast( "Sua conta foi criada com sucesso!" );
-                        closeProgressBar();
-                        finish();
-                    }
-
-                    @Override
-                    public void onError(FirebaseError firebaseError) {
-                        showSnackbar( firebaseError.getMessage() );
-                        closeProgressBar();
-                    }
+                if (!task.isSuccessful()) {
+                    closeProgressBar();
                 }
-        );
+            }
+
+        }).addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showSnackbar(e.getMessage());
+            }
+        });
+    }
+
+    @Override
+    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+        mAuth.signOut();
+
+        showToast("Conta criada com sucesso!");
+        closeProgressBar();
+        finish();
     }
 }
