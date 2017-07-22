@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "37844130046",
+    "firebase_url": "https://login-58309.firebaseio.com",
+    "project_id": "login-58309",
+    "storage_bucket": "login-58309.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:37844130046:android:66117a1402793057",
+        "android_client_info": {
+          "package_name": "com.example.frank.login"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "37844130046-jb1adk7jrmc1ip6417kcmbds4u64dsbu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQIlBOzS0KElKna8IK3Ow6sKnu0QJgaP4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

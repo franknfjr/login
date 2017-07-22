@@ -9,6 +9,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.frank.login.domain.util.LibraryClass;
+import com.firebase.client.Firebase;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,34 +19,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button btLogin = (Button) findViewById(R.id.btLogin);
-        btLogin.setOnClickListener(onClickLogin());
     }
-    private View.OnClickListener onClickLogin(){
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextView tLogin = (TextView) findViewById(R.id.tLogin);
-                TextView tSenha = (TextView) findViewById(R.id.tSenha);
-                String login = tLogin.getText().toString();
-                String senha = tSenha.getText().toString();
-                if("frank".equals(login) && "123".equals(senha)){
-                    Intent intent = new Intent(getContext(), BemVindoActivity.class);
-                    Bundle params = new Bundle();
-                    params.putString("nome", "Frank Jr");
-                    intent.putExtras(params);
-                    startActivity(intent);
-                }else{
-                    alert("Sorry :(\nIncorrect login, please try again.");
-            }
-        }
-    };
 
-}
-    private Context getContext(){
-        return this;
-    }
-    private void alert(String s){
-        Toast.makeText(getContext(),s, Toast.LENGTH_SHORT).show();
+
+    public void loggout(View view){
+        Firebase firebase = LibraryClass.getFirebase();
+        firebase.unauth();
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
